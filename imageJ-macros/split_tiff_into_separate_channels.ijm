@@ -39,6 +39,7 @@ function processFile(input, output, file, ignoreChan) {
 	titles = getList("image.titles");
 	for (i = 0; i < titles.length; i++) {
 		if(i != ignoreChan){
+			selectWindow(titles[i]);
 			saveAs("Tiff", output + File.separator + titles[i]);
 		}
 
