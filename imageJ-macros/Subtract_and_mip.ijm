@@ -39,7 +39,7 @@ function processFolder(input) {
 
 function processFile(input, output, file, brightfield, zproj, typeOfZproj, subtract) {
 	
-	print("Opening: " + input + file);
+	print("Opening: " + input + File.separator + file);
 	
 	run("Bio-Formats Windowless Importer", "open=" + input + File.separator + file);
 	if(subtract){
@@ -65,7 +65,7 @@ function processFile(input, output, file, brightfield, zproj, typeOfZproj, subtr
 			}
 		}
 		run("Merge Channels...", final_channels + "create");
-		saveAs("Tiff", output + File.separator + "Sub" + file);	
+		saveAs("Tiff", output + File.separator + "Sub_" + file);	
 	}
 	
 	if(zproj) {
