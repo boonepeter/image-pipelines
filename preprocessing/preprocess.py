@@ -36,7 +36,8 @@ def subtract_channels(image, gaus=False, bright=None):
     image = img_as_float(image)
     
     if gaus:
-        image = gaussian(image)
+        _sigma = int(gaus)
+        image = gaussian(image, sigma=_sigma)
         
     three_d = len(image.shape) == 4
     
