@@ -11,19 +11,17 @@ Preprocess images
 
 import numpy as np
 
-from skimage.filters import gaussian
 from skimage import img_as_float
 
 
 
 
-def subtract_channels(image, gaus=False, bright=None):
+def subtract_channels(image, bright=None):
     """Subtracts every channel from each other in a multichannel image
     
     Parameters
     ----------
     image: np.array of any dtype
-    gaus: False or int. If int, gaussian sigma = int
     bright: brightfield channel to ignore and not subtract. Default is none
     
     Return
@@ -34,13 +32,7 @@ def subtract_channels(image, gaus=False, bright=None):
     
     
     image = img_as_float(image)
-    
-    if gaus:
-        _sigma = int(gaus)
-        image = gaussian(image, sigma=_sigma)
-        
     three_d = len(image.shape) == 4
-    
     new_image = np.zeros(shape=image.shape, dtype=image.dtype)
 
     for channel in range(image.shape[-1]):
@@ -49,7 +41,6 @@ def subtract_channels(image, gaus=False, bright=None):
                 new_image[:, :, :, channel] = image[:, :, :, channel]
             else:
                 new_image[:, :, channel] = image[:, :, channel]
-            
             continue
         
         if three_d:
@@ -75,7 +66,47 @@ def subtract_channels(image, gaus=False, bright=None):
     new_image = np.clip(new_image, a_min=image.min(), a_max=image.max())
     return new_image
                 
-        
+def z_project(image, project_type="max"):
+    """Projects an image along the first axis using a chosen method.
+    
+    Parameters
+    ----------
+    image = np.array with the first axis = the z sections
+    project_type = sting from list: ['max', 
+                                     'min',
+                                     'mean',
+                                     'median',
+                                     'std',
+                                     'sum']
+    
+    Returns
+    ----------
+    flattened image
+    
+    """
+    image = img_as_float(image)
+    
+    if (len(image.shape) < 3):
+        print(f"Image has only {len(image.shape)} dimension(s)")
+        return
+    
+    elif (len(image.shape) == 3) and (image.shape[0] > 100):
+        print("Looks like the image is not a z stack")
+    
+    
+    type_proj = project_type.lower()
+    type_lookup = {"max": np.max, "min": np.min, "mean": np.mean,
+                   "median": np.median, "std": np.std, "sum": np.sum}
+    func = type_lookup[type_proj]
+    
+    proj_image = np.apply_along_axis(func1d=func, axis=0, arr=image)
+    
+    return proj_image
+    
+
+    
+    
+    
     
     
 
