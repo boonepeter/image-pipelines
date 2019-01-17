@@ -1,9 +1,8 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
-Preprocess images
+Preprocessing functions
 
-@author: pgb13
+Author: Peter Boone
+email: boonepeterg@gmail.com
 """
 
 
@@ -30,41 +29,29 @@ def subtract_channels(image, bright=None):
     
     """
     
-    
-    image = img_as_float(image)
+    image_type = image.dtype
+    image = image.astype(np.int32)
     three_d = len(image.shape) == 4
-    new_image = np.zeros(shape=image.shape, dtype=image.dtype)
+    new_image = np.copy(image)
 
     for channel in range(image.shape[-1]):
         if channel == bright:
-            if three_d:
-                new_image[:, :, :, channel] = image[:, :, :, channel]
-            else:
-                new_image[:, :, channel] = image[:, :, channel]
             continue
-        
-        if three_d:
-            this_chan = np.copy(image[:, :, :, channel])
-        else:
-            this_chan = np.copy(image[:, :, channel])
         
         for sub_channel in range(image.shape[-1]):
             if (sub_channel == bright) or (channel == sub_channel):
                 continue
             
             if three_d:
-                this_chan = this_chan - image[:, :, :, sub_channel]
+                new_image[:,:,:, channel] = new_image[:,:,:, channel] - image[:,:,:, sub_channel]
             else:
-                this_chan = this_chan - image[:, :, sub_channel]
+                new_image[:,:, channel] = new_image[:,:, channel] - image[:,:, sub_channel]
         
-        if three_d:
-            new_image[:, :, :, channel] = this_chan
-        else:
-            new_image[:, :, channel] = this_chan
+
         
         
     new_image = np.clip(new_image, a_min=image.min(), a_max=image.max())
-    return new_image
+    return new_image.astype(image_type)
                 
 def z_project(image, project_type="max"):
     """Projects an image along the first axis using a chosen method.
@@ -84,22 +71,24 @@ def z_project(image, project_type="max"):
     flattened image
     
     """
-    image = img_as_float(image)
+
     
     if (len(image.shape) < 3):
         print(f"Image has only {len(image.shape)} dimension(s)")
         return
     
     elif (len(image.shape) == 3) and (image.shape[0] > 100):
-        print("Looks like the image is not a z stack")
+        raise ValueError(f"image has the shape: {image.shape}, which doesn't look good")
     
     
     type_proj = project_type.lower()
     type_lookup = {"max": np.max, "min": np.min, "mean": np.mean,
                    "median": np.median, "std": np.std, "sum": np.sum}
-    func = type_lookup[type_proj]
     
-    proj_image = np.apply_along_axis(func1d=func, axis=0, arr=image)
+    proj_func = type_lookup[type_proj]
+    
+    
+    proj_image = proj_func(image, axis=0)
     
     return proj_image
     
