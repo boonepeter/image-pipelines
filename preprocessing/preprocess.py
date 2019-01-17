@@ -10,7 +10,6 @@ email: boonepeterg@gmail.com
 
 import numpy as np
 
-from skimage import img_as_float
 
 
 
