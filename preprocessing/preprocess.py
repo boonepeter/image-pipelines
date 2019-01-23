@@ -1,8 +1,9 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
-Preprocessing functions
+Preprocess images
 
-Author: Peter Boone
-email: boonepeterg@gmail.com
+@author: pgb13
 """
 
 
@@ -10,8 +11,7 @@ email: boonepeterg@gmail.com
 
 import numpy as np
 
-from skimage import img_as_float
-
+from skimage import img_as_float, img_as_uint, img_as_int
 
 
 
@@ -25,34 +25,44 @@ def subtract_channels(image, bright=None):
     
     Return
     -----------
-    An np.arry of the same size with the brightfield
+    An np.arry of the same size with the brightfield. 
+    
+    Notes
+    -----------
+    Casts image to an np.int32, which doesn't scale correctly, but is needed in 
+    order to get negative values and clip them
+    
     
     """
     
+    #this allows for negative values
     image_type = image.dtype
     image = image.astype(np.int32)
+
     three_d = len(image.shape) == 4
+    
     new_image = np.copy(image)
 
     for channel in range(image.shape[-1]):
         if channel == bright:
             continue
-        
+
         for sub_channel in range(image.shape[-1]):
             if (sub_channel == bright) or (channel == sub_channel):
                 continue
             
             if three_d:
-                new_image[:,:,:, channel] = new_image[:,:,:, channel] - image[:,:,:, sub_channel]
+                new_image[:, :, :, channel] = new_image[:, :, :, channel] - image[:, :, :, sub_channel]
             else:
-                new_image[:,:, channel] = new_image[:,:, channel] - image[:,:, sub_channel]
+                new_image[:, :, channel] = new_image[:, :, channel] - image[:, :, sub_channel]
         
 
         
-        
     new_image = np.clip(new_image, a_min=image.min(), a_max=image.max())
+    
     return new_image.astype(image_type)
-                
+
+           
 def z_project(image, project_type="max"):
     """Projects an image along the first axis using a chosen method.
     
@@ -71,24 +81,23 @@ def z_project(image, project_type="max"):
     flattened image
     
     """
-
+    image = img_as_float(image)
     
     if (len(image.shape) < 3):
         print(f"Image has only {len(image.shape)} dimension(s)")
         return
     
     elif (len(image.shape) == 3) and (image.shape[0] > 100):
-        raise ValueError(f"image has the shape: {image.shape}, which doesn't look good")
+        print("Looks like the image is not a z stack")
     
     
     type_proj = project_type.lower()
     type_lookup = {"max": np.max, "min": np.min, "mean": np.mean,
                    "median": np.median, "std": np.std, "sum": np.sum}
+    func = type_lookup[type_proj]
     
-    proj_func = type_lookup[type_proj]
-    
-    
-    proj_image = proj_func(image, axis=0)
+    proj_image = np.amax(image, axis=0)
+    #proj_image = np.apply_along_axis(func1d=func, axis=0, arr=image)
     
     return proj_image
     
