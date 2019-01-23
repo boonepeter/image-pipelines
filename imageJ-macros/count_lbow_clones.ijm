@@ -94,11 +94,20 @@ function processFile(input, output, file, brightfield, typeOfZproj) {
 	images = getList("image.titles");
 	for (i = 0; i < images.length; i++) {
 		selectWindow(images[i]);
+
+		//use different threshold for mko channel because of higher background
+		//setAutoThreshold("Otsu dark");
 		if (i == 2){
 			setAutoThreshold("MaxEntropy dark");
 		}else {
 			setAutoThreshold("Otsu dark");
 		}
+		//TODO
+		//need to set a low cutoff, because when there are no nuclei in the image these 
+		//thresholding methods threshold the autofluorescent tissue from the black background
+		//and find many spots
+
+		
 		run("Convert to Mask");
 		run("Dilate");
 		run("Dilate");
