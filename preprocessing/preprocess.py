@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 Preprocess images
 
@@ -96,17 +94,6 @@ def z_project(image, project_type="max"):
                    "median": np.median, "std": np.std, "sum": np.sum}
     func = type_lookup[type_proj]
     
-    proj_image = np.amax(image, axis=0)
-    #proj_image = np.apply_along_axis(func1d=func, axis=0, arr=image)
+    proj_image = func(image, axis=0)
     
     return proj_image
-    
-
-    
-    
-    
-    
-    
-
-
-
