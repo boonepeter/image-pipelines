@@ -83,7 +83,7 @@ def z_project(image, project_type="max"):
     
     if (len(image.shape) < 3):
         print(f"Image has only {len(image.shape)} dimension(s)")
-        return
+        return image
     
     elif (len(image.shape) == 3) and (image.shape[0] > 100):
         print("Looks like the image is not a z stack")
