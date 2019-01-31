@@ -9,7 +9,7 @@ Preprocess images
 
 import numpy as np
 
-from skimage import img_as_float, img_as_uint, img_as_int
+from skimage import img_as_float
 
 
 
@@ -23,7 +23,7 @@ def subtract_channels(image, bright=None):
     
     Return
     -----------
-    An np.arry of the same size with the brightfield. 
+    An np.arry of the same size with the brightfield. Returns a float_type
     
     Notes
     -----------
@@ -34,9 +34,8 @@ def subtract_channels(image, bright=None):
     """
     
     #this allows for negative values
-    image_type = image.dtype
-    image = image.astype(np.int32)
-
+    image = img_as_float(image)
+    
     three_d = len(image.shape) == 4
     
     new_image = np.copy(image)
@@ -58,7 +57,7 @@ def subtract_channels(image, bright=None):
         
     new_image = np.clip(new_image, a_min=image.min(), a_max=image.max())
     
-    return new_image.astype(image_type)
+    return new_image
 
            
 def z_project(image, project_type="max"):
