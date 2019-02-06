@@ -11,7 +11,4 @@ Simple scripts for processing files in batch. Can be installed in [Fiji](https:/
 A few functions for preprocessing images, to be used in conjunction with skimage
 
 ### Required Python packages
-* scikit-image
-* numpy
-* matplotlib
-* scipy
+See requirements.txt
