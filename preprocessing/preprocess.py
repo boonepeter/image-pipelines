@@ -1,15 +1,4 @@
-"""
-Preprocess images
-
-@author: pgb13
-"""
-
-
-
-
 import numpy as np
-
-
 
 
 def subtract_channels(image, bright=None):
@@ -31,9 +20,6 @@ def subtract_channels(image, bright=None):
     
     
     """
-    
-    #this allows for negative values
-    image = img_as_float(image)
     
     three_d = len(image.shape) == 4
     
@@ -59,25 +45,40 @@ def subtract_channels(image, bright=None):
     return new_image
 
            
-def z_project(image, project_type="max"):
+def z_project(image, project_type="max", axis=0):
     """Projects an image along the first axis using a chosen method.
+    Returns a new image, does not alter the original image
     
     Parameters
     ----------
-    image = np.array with the first axis = the z sections
-    project_type = sting from list: ['max', 
-                                     'min',
-                                     'mean',
-                                     'median',
-                                     'std',
-                                     'sum']
+    image : numpy.ndarray
+        A numpy ndarray with >= 3 dimensions. First dim. should be z dim.
+    
+    project_type : `str`, optional (default='max')
+        Sting from list: ['max', 'min', 'mean', 'median', 'std', 'sum']
+        Sets the type of projection to use, numpy function
+    
+    axis : `int`, optional (default=0)
+        The axis to perform the projection along. Should be 0 since that is 
+        the skimage convention
     
     Returns
     ----------
-    flattened image
+    proj_image : `numpy.ndarray`
+        Returns a projected image along the z axis. Same x, y shape as original
+    
+    Example
+    -------
+    ```
+    >>> image = np.ndarray(shape=(5, 25, 25), dtype=float)
+    >>> image.shape
+    (5, 25, 25)
+    >>> proj = z_project(image, project_type="sum")
+    >>> proj.shape
+    (25, 25)
+    ```
     
     """
-    image = img_as_float(image)
     
     if (len(image.shape) < 3):
         print(f"Image has only {len(image.shape)} dimension(s)")
@@ -85,7 +86,6 @@ def z_project(image, project_type="max"):
     
     elif (len(image.shape) == 3) and (image.shape[0] > 100):
         print("Looks like the image is not a z stack")
-    
     
     type_proj = project_type.lower()
     type_lookup = {"max": np.max, "min": np.min, "mean": np.mean,
